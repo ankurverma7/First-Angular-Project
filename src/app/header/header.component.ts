@@ -9,13 +9,12 @@ import { LoginComponent } from '../login/login.component';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor(public dialog: MatDialog ) { }
+  constructor(public dialog: MatDialog) { }
 
   ngOnInit() {
   }
 
   openLoginForm() {
-    this.dialog.open(LoginComponent, {width: '500px', height: '450px'});
+    this.dialog.open(LoginComponent, { width: '500px', height: '450px' });
   }
-
 }

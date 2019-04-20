@@ -1,8 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
 @import 'variables';
 @import '../node_modules/font-awesome/scss/font-awesome';
 
+// Some basic resets
 $lt-gray: #ddd;
 $background-dark: #512DA8;
 $background-light: #9575CD;
@@ -21,19 +22,16 @@ $divider-color:        #BDBDBD;
     padding: $pad-up-down $pad-left-right;
 }
 
-// some basic resets
-
 body{
     padding: 0;
     margin: 0;
-    font-family: Roboto, sans-serif;
+    font-family:  Roboto, sans-serif;
 }
 
 .container {
     margin: 20px;
     display:flex;
 }
-
 
 .background-primary {
     background-color: $background-dark!important;
@@ -47,4 +45,11 @@ body{
 
 .flex-spacer {
   flex: 1 1 auto;
+}
+
+.highlight {
+  background-color: $background-pale;
+  border: 1px solid $primary-color-dark;
+  z-index: 1;
+  transform: scale(1.01);
 }

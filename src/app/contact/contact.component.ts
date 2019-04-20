@@ -1,69 +1,88 @@
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { FeedbackService } from '../services/feedback.service';
+import { visibility, flyInOut, expand } from '../animations/app.animations';
 
 @Component({
   selector: 'app-contact',
   templateUrl: './contact.component.html',
-  styleUrls: ['./contact.component.scss']
+  styleUrls: ['./contact.component.scss'],
+  host: {
+    '[@flyInOut]': 'true',
+    'style': 'display: block;'
+  },
+  animations: [
+    flyInOut(),
+    visibility(),
+    expand()
+  ]
 })
 export class ContactComponent implements OnInit {
-
-  @ViewChild('fform') feedbackFormDirective;
   feedbackForm: FormGroup;
   feedback: Feedback;
   contactType = ContactType;
+  @ViewChild('fform') feedbackFormDirective;
+  feedbackErrMsg: string;
+  success = false;
+  submitted = false;
+  returnedFeedback: Feedback;
+  visibility = 'shown';
 
   formErrors = {
     'firstname': '',
     'lastname': '',
     'telnum': '',
     'email': ''
-  };
+  }
 
   validationMessages = {
     'firstname': {
-      'required':      'First Name is required.',
-      'minlength':     'First Name must be at least 2 characters long.',
-      'maxlength':     'FirstName cannot be more than 25 characters long.'
+      'required': 'First name is required.',
+      'minlength': 'First name must be at least 2 characters',
+      'maxlength': 'First name cannot be more than 25 characters',
     },
     'lastname': {
-      'required':      'Last Name is required.',
-      'minlength':     'Last Name must be at least 2 characters long.',
-      'maxlength':     'Last Name cannot be more than 25 characters long.'
+      'required': 'First name is required.',
+      'minlength': 'First name must be at least 2 characters',
+      'maxlength': 'First name cannot be more than 25 characters',
     },
     'telnum': {
-      'required':      'Tel. number is required.',
-      'pattern':       'Tel. number must contain only numbers.'
+      'required': 'Tel. number is required.',
+      'pattern': 'Tel. number must conatins only numbers.',
     },
     'email': {
-      'required':      'Email is required.',
-      'email':         'Email not in valid format.'
-    },
+      'required': 'Email is required.',
+      'email': 'Email not in the valid format.',
+    }
   };
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder,
+    private feedbackservice: FeedbackService,
+    @Inject('BaseURL') private BaseURL) {
     this.createForm();
   }
 
   ngOnInit() {
-  }
+    this.submitted = false;
+   }
 
-  createForm(): void {
+  createForm() {
     this.feedbackForm = this.fb.group({
-      firstname: ['', Validators.required ],
-      lastname: ['', Validators.required ],
-      telnum: ['', Validators.required ],
-      email: ['', Validators.required ],
+      firstname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(25)]],
+      lastname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(25)]],
+      telnum: ['', [Validators.required, Validators.pattern]],
+      email: ['', [Validators.required, Validators.email]],
       agree: false,
       contacttype: 'None',
       message: ''
     });
-
+    this.returnedFeedback = this.feedbackForm.value;
+    this.submitted = false;
     this.feedbackForm.valueChanges
-    .subscribe(data => this.onValueChanged(data));
+      .subscribe(data => this.onValueChanged(data));
 
-  this.onValueChanged(); // (re)set validation messages now
+    this.onValueChanged(); // (re)set validation messages now 
   }
 
   onValueChanged(data?: any) {
@@ -87,18 +106,33 @@ export class ContactComponent implements OnInit {
   }
 
   onSubmit() {
+    this.submitted = true;
     this.feedback = this.feedbackForm.value;
-    console.log(this.feedback);
-    this.feedbackForm = this.fb.group({
-      firstname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(25)] ],
-      lastname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(25)] ],
-      telnum: ['', [Validators.required, Validators.pattern] ],
-      email: ['', [Validators.required, Validators.email] ],
+    //submit the feedback
+    this.feedbackservice.submitFeedback(this.feedback)
+      .subscribe(returnedFeedback  => {
+        this.returnedFeedback = returnedFeedback;
+        this.success = true;
+        this.submitted = false;
+        this.visibility = 'shown';  
+        setTimeout(() => {
+          this.success = false;
+          this.returnedFeedback = null;
+          this.createForm();
+        }, 5000);
+      },
+        feedbackErrMsg => {
+          this.feedback = null; this.feedbackErrMsg = <any>feedbackErrMsg;
+        });
+
+    this.feedbackForm.reset({
+      firstname: '',
+      lastname: '',
+      telnum: '',
+      email: '',
       agree: false,
       contacttype: 'None',
-      message: ''
+      message: '',
     });
-    this.feedbackFormDirective.resetForm();
   }
-
 }

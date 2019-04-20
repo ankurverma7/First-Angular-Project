@@ -1,4 +1,4 @@
-export class Promotion{
+export class Promotion {
     id: string;
     name: string;
     image: string;
