@@ -1,6 +1,6 @@
 import {Promotion} from './promotion';
 
-export const PROMOTION: Promotion[]=[
+export const PROMOTIONS: Promotion[]=[
     {
         id: '0',
         name: 'Weekend Grand Buffet',
